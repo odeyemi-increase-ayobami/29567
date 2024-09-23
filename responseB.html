@@ -1,79 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Hyperrealistic Earth</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-    </style>
+<meta charset="UTF-8">
+<title>Interactive Periodic Table</title>
+<style>
+    body { background-color: grey; font-family: Arial, sans-serif; }
+    .legend { display: flex; justify-content: space-around; margin-bottom: 20px; }
+    .legend div { padding: 5px 10px; color: white; }
+    .periodic-table { display: grid; grid-template-columns: repeat(18, 1fr); gap: 2px; width: fit-content; margin: auto; }
+    .element { width: 60px; height: 60px; text-align: center; position: relative; transform-style: preserve-3d; transition: transform 0.6s; }
+    .element:hover { transform: rotateY(180deg); }
+    .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; font-size: 0.8em; }
+    .front { background-color: inherit; }
+    .back { transform: rotateY(180deg); }
+    /* Color codes */
+    .alkali-metals { background-color: #FF6666; }
+    .alkaline-earth { background-color: #FFDEAD; }
+    .transition-metals { background-color: #FFC0C0; }
+    .other-metals { background-color: #CCCCCC; }
+    .metalloids { background-color: #B0E0E6; }
+    .non-metals { background-color: #90EE90; }
+    .halogens { background-color: #FFFF99; }
+    .noble-gases { background-color: #C0C0C0; }
+    .lanthanides { background-color: #FFBFFF; }
+    .actinides { background-color: #FF99CC; }
+</style>
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<div class="legend">
+    <div class="alkali-metals">Alkali Metals</div>
+    <div class="alkaline-earth">Alkaline Earth</div>
+    <div class="transition-metals">Transition Metals</div>
+    <div class="other-metals">Other Metals</div>
+    <div class="metalloids">Metalloids</div>
+    <div class="non-metals">Non-Metals</div>
+    <div class="halogens">Halogens</div>
+    <div class="noble-gases">Noble Gases</div>
+    <div class="lanthanides">Lanthanides</div>
+    <div class="actinides">Actinides</div>
+</div>
+<div class="periodic-table">
+    <!-- Here you would loop through your elements data to generate each .element div -->
+    <div class="element alkali-metals" data-name="Hydrogen" data-mass="1.008">
+        <div class="front">H<br>1</div>
+        <div class="back">1.008<br>Hydrogen</div>
+    </div>
+    <!-- Repeat for all elements with appropriate classes for group coloring -->
+</div>
 
-    <script>
-        // Setup
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+<script>
+    // JavaScript here would dynamically add elements if not hardcoded
+    // Example of dynamic content:
+    const elements = [
+        {symbol: 'He', number: 2, name: 'Helium', mass: '4.0026', group: 'noble-gases'},
+        // Add all elements here
+    ];
 
-        // Earth
-        const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
-        const earthMaterial = new THREE.MeshPhongMaterial({
-            map: new THREE.TextureLoader().load('path_to_earth_color.jpg'),
-            bumpMap: new THREE.TextureLoader().load('path_to_earth_bump.jpg'),
-            bumpScale: 0.005, // Adjust for mountain height visibility
-            specularMap: new THREE.TextureLoader().load('path_to_earth_specular.jpg'),
-            specular: new THREE.Color('grey')
-        });
-        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
-        scene.add(earth);
-
-        // Stars background
-        const starGeometry = new THREE.BufferGeometry();
-        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
-        const vertices = [];
-        for (let i = 0; i < 10000; i++) {
-            const x = (Math.random() - 0.5) * 2000;
-            const y = (Math.random() - 0.5) * 2000;
-            const z = -Math.random() * 1000;
-            vertices.push(x, y, z);
-        }
-        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        const stars = new THREE.Points(starGeometry, starMaterial);
-        scene.add(stars);
-
-        // Lights
-        const ambientLight = new THREE.AmbientLight(0x404040);
-        scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xffffff, 1, 0);
-        pointLight.position.set(5, 3, 5);
-        scene.add(pointLight);
-
-        // Camera position
-        camera.position.z = 5;
-
-        // Rotation controls
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            earth.rotation.y += 0.001; // Earth rotation speed
-            renderer.render(scene, camera);
-            controls.update();
-        }
-
-        animate();
-
-        // Responsive design
-        window.addEventListener('resize', function() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }, false);
-    </script>
+    const table = document.querySelector('.periodic-table');
+    elements.forEach(elem => {
+        const elementDiv = document.createElement('div');
+        elementDiv.className = `element ${elem.group.replace(/\s+/g, '-')}`;
+        elementDiv.innerHTML = `
+            <div class="front">${elem.symbol}<br>${elem.number}</div>
+            <div class="back">${elem.mass}<br>${elem.name}</div>
+        `;
+        elementDiv.setAttribute('data-name', elem.name);
+        elementDiv.setAttribute('data-mass', elem.mass);
+        table.appendChild(elementDiv);
+    });
+</script>
 </body>
 </html>

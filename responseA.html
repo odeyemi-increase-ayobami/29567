@@ -1,89 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>3D Rotating Earth</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { width: 100%; height: 100%; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Periodic Table</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {
+    background-color: #d3d3d3;
+    font-family: 'Roboto', sans-serif;
+}
+
+.periodic-table {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 2px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.legend {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.legend div {
+    display: flex;
+    align-items: center;
+}
+
+.legend span {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.element {
+    background: white;
+    border: 1px solid #aaa;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.element:hover {
+    transform: rotateY(180deg);
+}
+
+.front, .back {
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.front {
+    z-index: 2;
+}
+
+.back {
+    transform: rotateY(180deg);
+}
+
+/* Color coding */
+.alkali { background-color: #ff6666; }
+.alkaline-earth { background-color: #ffdead; }
+.transition-metal { background-color: #ffc0c0; }
+.other-metal { background-color: #cccccc; }
+.metalloid { background-color: #cccc99; }
+.non-metal { background-color: #a0ffa0; }
+.halogen { background-color: #ffff99; }
+.noble-gas { background-color: #c0ffff; }
+.lanthanide { background-color: #ffbfff; }
+.actinide { background-color: #ff99cc; }
+</style>
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/OrbitControls.js"></script>
-    <script>
-        // Setup scene, camera, and renderer
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
 
-        // Earth geometry and materials
-        const earthGeometry = new THREE.SphereGeometry(10, 64, 64);
-        const earthMaterial = new THREE.MeshPhongMaterial({
-            map: new THREE.TextureLoader().load('path/to/earth_daymap.jpg'),
-            bumpMap: new THREE.TextureLoader().load('path/to/earth_bump.jpg'),
-            bumpScale: 0.1,
-            specularMap: new THREE.TextureLoader().load('path/to/earth_specular.jpg'),
-            specular: new THREE.Color('grey')
-        });
-        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+<div class="legend">
+    <div><span class="alkali"></span> Alkali Metals</div>
+    <div><span class="alkaline-earth"></span> Alkaline Earth Metals</div>
+    <div><span class="transition-metal"></span> Transition Metals</div>
+    <div><span class="other-metal"></span> Other Metals</div>
+    <div><span class="metalloid"></span> Metalloids</div>
+    <div><span class="non-metal"></span> Non-Metals</div>
+    <div><span class="halogen"></span> Halogens</div>
+    <div><span class="noble-gas"></span> Noble Gases</div>
+    <div><span class="lanthanide"></span> Lanthanides</div>
+    <div><span class="actinide"></span> Actinides</div>
+</div>
 
-        // Clouds
-        const cloudGeometry = new THREE.SphereGeometry(10.1, 64, 64);
-        const cloudMaterial = new THREE.MeshPhongMaterial({
-            map: new THREE.TextureLoader().load('path/to/earth_clouds.png'),
-            transparent: true
-        });
-        const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+<div class="periodic-table">
+    <!-- Example elements, you would need to add all 118 elements here -->
+    <div class="element alkali" data-name="Hydrogen" data-number="1" data-mass="1.008">
+        <div class="front">H<br>1</div>
+        <div class="back">Hydrogen<br>1.008</div>
+    </div>
+    <!-- Add more elements here -->
+</div>
 
-        // Add to scene
-        scene.add(earth);
-        scene.add(clouds);
+<script>
+document.querySelectorAll('.element').forEach(element => {
+    element.addEventListener('mouseenter', function() {
+        this.style.transform = 'rotateY(180deg)';
+    });
 
-        // Lights
-        const ambientLight = new THREE.AmbientLight(0x404040);
-        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-        pointLight.position.set(50, 50, 50);
-        scene.add(ambientLight);
-        scene.add(pointLight);
+    element.addEventListener('mouseleave', function() {
+        this.style.transform = 'rotateY(0deg)';
+    });
+});
+</script>
 
-        // Starfield background
-        const starGeometry = new THREE.BufferGeometry();
-        const starVertices = [];
-        for (let i = 0; i < 10000; i++) {
-            const x = (Math.random() - 0.5) * 2000;
-            const y = (Math.random() - 0.5) * 2000;
-            const z = (Math.random() - 0.5) * 2000;
-            starVertices.push(x, y, z);
-        }
-        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-        const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0x888888 }));
-        scene.add(stars);
-
-        // Camera position
-        camera.position.z = 30;
-
-        // Controls
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            earth.rotation.y += 0.001; // Earth rotation speed
-            clouds.rotation.y += 0.0005; // Slightly slower cloud rotation for realism
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        // Handle window resizing
-        window.addEventListener('resize', function() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }, false);
-    </script>
 </body>
 </html>
